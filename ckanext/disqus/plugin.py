@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import simplejson
 import time
+import six
 
 from ckan.common import request
 from ckan.lib.helpers import url_for_static_or_external
@@ -60,11 +61,10 @@ class Disqus(p.SingletonPlugin):
         if disqus_name is None:
             log.warn("No disqus forum name is set. Please set \
                 'disqus.name' in your .ini!")
-        config['pylons.app_globals'].has_commenting = True
 
         disqus_developer = p.toolkit.asbool(config.get('disqus.developer',
                                                        'false'))
-        disqus_developer = str(disqus_developer).lower()
+        disqus_developer = six.text_type(disqus_developer).lower()
         # store these so available to class methods
         self.__class__.disqus_developer = disqus_developer
         self.__class__.disqus_name = disqus_name
@@ -117,9 +117,9 @@ class Disqus(p.SingletonPlugin):
             'id': user_dict['id'],
             'username':  user_dict['name'],
             'email': user_dict['email'],
-            })
+        })
 
-        message = base64.b64encode(SSOdata)
+        message = base64.b64encode(SSOdata.encode())
         # generate a timestamp for signing the message
         timestamp = int(time.time())
         # generate our hmac signature
